@@ -8,6 +8,19 @@ CLI tool to transcribe audio using open-weight multimodal models (Qwen-Audio, Ge
 python3.11 -m pip install -e ".[dev]"
 ```
 
+### faster-whisper (optional, recommended for long recordings)
+
+```bash
+python3.11 -m pip install -e ".[faster-whisper]"
+```
+
+If the `transcribe` command is not found after installing, add the Python user bin directory to your PATH:
+
+```bash
+echo 'export PATH="$HOME/Library/Python/3.11/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
 ## Usage
 
 ```bash
@@ -23,6 +36,9 @@ transcribe --backend huggingface --model openai/whisper-large-v3
 
 # Save output
 transcribe --file audio.wav --output transcript.txt
+
+# Use faster-whisper for long recordings (~4x faster than huggingface)
+transcribe --backend faster-whisper --file recording.wav
 ```
 
 ## Configuration
