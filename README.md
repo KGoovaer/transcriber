@@ -64,7 +64,15 @@ ollama pull qwen2-audio
 
 ### Hugging Face
 
-Models are downloaded automatically on first use. Requires `torch` and `transformers`.
+Models are downloaded from Hugging Face on first use and cached locally (`~/.cache/huggingface/`). All inference runs fully locally — no internet connection needed after the initial download. Requires `torch` and `transformers`.
+
+### faster-whisper
+
+Same Whisper models as Hugging Face but runs via CTranslate2, making it ~4x faster. Useful for long recordings. Models are also cached locally after the first download.
+
+```bash
+transcribe --backend faster-whisper --file recording.wav
+```
 
 ## Run Tests
 
