@@ -23,7 +23,6 @@ def test_transcribe_file_not_found():
 
     with patch("transcriber.backends.faster_whisper.WhisperModel", return_value=mock_model):
         backend = FasterWhisperBackend(model="tiny")
-        backend._load()
         with pytest.raises(FileNotFoundError):
             backend.transcribe("nonexistent.wav")
 
