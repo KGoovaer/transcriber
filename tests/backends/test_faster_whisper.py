@@ -13,7 +13,6 @@ def test_transcribe_returns_string():
 
     with patch("transcriber.backends.faster_whisper.WhisperModel", return_value=mock_model):
         backend = FasterWhisperBackend(model="tiny")
-        backend._load()
         result = backend.transcribe(FIXTURE_WAV)
 
     assert result == "hello world"
@@ -30,9 +29,7 @@ def test_transcribe_file_not_found():
 
 
 def test_load_raises_on_missing_package():
-    with patch.dict("sys.modules", {"faster_whisper": None}):
+    with patch("transcriber.backends.faster_whisper.WhisperModel", None):
+        backend = FasterWhisperBackend(model="tiny")
         with pytest.raises(RuntimeError, match="faster-whisper is not installed"):
-            import importlib
-            import transcriber.backends.faster_whisper as m
-            importlib.reload(m)
-            m.FasterWhisperBackend(model="tiny")._load()
+            backend._load()
