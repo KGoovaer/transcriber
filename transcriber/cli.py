@@ -5,16 +5,17 @@ import click
 from transcriber.audio import AudioCapture
 from transcriber.backends.ollama import OllamaBackend
 from transcriber.backends.huggingface import HuggingFaceBackend
+from transcriber.backends.faster_whisper import FasterWhisperBackend
 from transcriber.config import load_config
 from transcriber.output import write_output
 
 
-BACKENDS = {"ollama", "huggingface"}
+BACKENDS = {"ollama", "huggingface", "faster-whisper"}
 
 
 @click.command()
 @click.option("--file", "-f", "input_file", default=None, help="Audio file to transcribe (skips mic recording).")
-@click.option("--backend", "-b", default=None, help="Backend to use: ollama or huggingface.")
+@click.option("--backend", "-b", default=None, help="Backend to use: ollama, huggingface, or faster-whisper.")
 @click.option("--model", "-m", default=None, help="Model name to use for transcription.")
 @click.option("--output", "-o", "output_file", default=None, help="Save transcript to this file.")
 def main(input_file, backend, model, output_file):
@@ -27,6 +28,15 @@ def main(input_file, backend, model, output_file):
         click.echo(f"Error: Unknown backend '{backend}'. Choose from: {', '.join(BACKENDS)}", err=True)
         sys.exit(1)
 
+    if backend == "ollama":
+        transcription_backend = OllamaBackend(model=model)
+    elif backend == "faster-whisper":
+        transcription_backend = FasterWhisperBackend(model=model)
+    else:
+        transcription_backend = HuggingFaceBackend(model=model)
+
+    transcription_backend._load()
+
     capture = AudioCapture()
     try:
         if input_file:
@@ -38,11 +48,6 @@ def main(input_file, backend, model, output_file):
     except (FileNotFoundError, ValueError) as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
-
-    if backend == "ollama":
-        transcription_backend = OllamaBackend(model=model)
-    else:
-        transcription_backend = HuggingFaceBackend(model=model)
 
     try:
         transcript = transcription_backend.transcribe(audio_path)
